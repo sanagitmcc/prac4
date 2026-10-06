@@ -1,0 +1,206 @@
+1)A* Algorithm:
+
+graph = {
+    "a": ({"b": 5, "c": 1}, 6),
+    "b": ({"d": 1}, 2),
+    "c": ({"e": 2}, 5),
+    "d": ({"f": 0}, 3),
+    "e": ({"d": 2, "f": 0}, 2),
+    "f": ({}, 0)
+}
+
+
+def get_min(q):
+    mn = (0, (0, float("INF")))
+
+    for i in q:
+        if sum(q[i]) < sum(mn[1]):
+            mn = (i, q[i])
+
+    return mn[0]
+
+
+def a_star(graph, prev, dst, path, pcost, q):
+
+    print("Connected nodes of current node", prev, "with h(n) value:")
+
+    for n in graph[prev][0]:
+
+        if n not in path and n not in q:
+
+            q[n] = (graph[n][1], graph[prev][0][n])
+
+            print(n, "->", q[n])
+
+            add1 = sum(q[n])
+
+            path_cost = pcost + add1
+
+            print("A* value for", n, "=", path_cost)
+
+    while q:
+
+        mn = get_min(q)
+
+        temp = q.pop(mn)
+
+        print("Selecting Minimum vertex:", mn)
+        print("----------------------------------------")
+
+        if dst == mn:
+            return path + [dst]
+
+        pc = pcost + temp[1]
+
+        new_path = a_star(
+            graph,
+            mn,
+            dst,
+            path + [mn],
+            pc,
+            q
+        )
+
+        if new_path:
+            return new_path
+
+    return []
+
+
+source = input("Enter Source vertex: ")
+dst = input("Enter destination vertex: ")
+heuristic = int(input("Enter given heuristic value for source: "))
+
+path = a_star(
+    graph,
+    source,
+    dst,
+    [],
+    0,
+    {source: (heuristic, 0)}
+)
+
+if path:
+    print("Path:", path)
+else:
+    print("Path not found")
+
+
+Output:
+Enter Source vertex: a
+Enter destination vertex: f
+Enter given heuristic value for source: 6
+Connected nodes of current node a with h(n) value:
+b -> (2, 5)
+A* value for b = 7
+c -> (5, 1)
+A* value for c = 6
+Selecting Minimum vertex: a
+----------------------------------------
+Connected nodes of current node a with h(n) value:
+Selecting Minimum vertex: c
+----------------------------------------
+Connected nodes of current node c with h(n) value:
+e -> (2, 2)
+A* value for e = 5
+Selecting Minimum vertex: e
+----------------------------------------
+Connected nodes of current node e with h(n) value:
+d -> (3, 2)
+A* value for d = 8
+f -> (0, 0)
+A* value for f = 3
+Selecting Minimum vertex: f
+----------------------------------------
+Path: ['a', 'c', 'e', 'f']
+
+
+2)Greedy Best First Search:
+
+graph = {
+    "A": ({"D": 1}, 3),
+    "B": ({"C": 2}, 2),
+    "C": ({"G": 3}, 2),
+    "D": ({"B": 3, "G": 2}, 4),
+    "E": ({"G": 2}, 5),
+    "S": ({"D": 1, "A": 2, "E": 3}, 6),
+    "G": ({}, 0)
+}
+
+
+def get_min(q):
+    mn = (0, float("INF"))
+
+    for i in q:
+        if q[i] < mn[1]:
+            mn = (i, q[i])
+
+    return mn[0]
+
+
+def greedy_search(graph, prev, dst, path, q):
+
+    print("Connected nodes of current node", prev, "with h(n) values:")
+
+    for n in graph[prev][0]:
+
+        if n not in path:
+            q[n] = graph[n][1]
+
+            print(n, "->", q[n])
+
+    while q:
+
+        mn = get_min(q)
+
+        q.pop(mn)
+
+        print("Taking minimum h(n) vertex:", mn)
+
+        if dst == mn:
+            return path + [dst]
+
+        new_path = greedy_search(
+            graph,
+            mn,
+            dst,
+            path + [mn],
+            q
+        )
+
+        if new_path:
+            return new_path
+
+    return []
+
+
+source = input("Enter source vertex: ")
+destination = input("Enter destination vertex: ")
+
+path = greedy_search(
+    graph,
+    source,
+    destination,
+    [source],
+    {}
+)
+
+if path:
+    print(path)
+else:
+    print("Path not found")
+
+
+Output:
+Enter source vertex: A
+Enter destination vertex: G
+Connected nodes of current node A with h(n) values:
+D -> 4
+Taking minimum h(n) vertex: D
+Connected nodes of current node D with h(n) values:
+B -> 2
+G -> 0
+Taking minimum h(n) vertex: G
+['A', 'D', 'G']
+
+
